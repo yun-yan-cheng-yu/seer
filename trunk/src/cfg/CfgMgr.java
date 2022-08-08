@@ -1,5 +1,6 @@
 package cfg;
 
+import global.Global;
 import log.Log;
 
 import java.io.*;
@@ -9,18 +10,17 @@ import java.util.Map;
 import java.util.Properties;
 
 public class CfgMgr {
-    private static final String path = "src\\spirits";//对应的文件夹
-
+    private static final String cfgPath = Global.PROJECT_PATH + "src/spirits";//对应的文件夹
     public static final Map<Integer,Spirit> spiritMap = new HashMap<>();
 
     public static void init(){
         spiritMap.clear();
-        File file = new File(path);
+        File file = new File(cfgPath);
         if(file.listFiles() == null){
-            Log.error("路径未找到。检查下path路径");
+            Log.error("路径未找到。尝试修改下Global中的路径");
         }
         readFile(file);
-        Log.debug("init over. total:{}",spiritMap.size());
+        Log.debug("cfg init over. total:{}",spiritMap.size());
     }
 
     public static void showAllCfg(){
@@ -51,7 +51,6 @@ public class CfgMgr {
                 pInStream = new FileInputStream(file);
                 BufferedReader bf = new BufferedReader(new InputStreamReader(pInStream, StandardCharsets.UTF_8));//解决读取properties文件中产生中文乱码的问题
                 p.load(bf);
-                p.load(pInStream);
                 int id = Integer.parseInt((String) p.getOrDefault("id",0));
                 String fileNme = file.getName();
                 String name = (String) p.getOrDefault("name",0);
@@ -61,8 +60,9 @@ public class CfgMgr {
                 Spirit spirit = new Spirit(fileNme,id,name,description,minAttackIndex,maxAttackIndex);
                 Spirit curSpirit = spiritMap.get(id);
                 if(null == curSpirit){
-                    spirit.checkData();
-                    spiritMap.put(id,spirit);
+                    if(spirit.checkData()){
+                        spiritMap.put(id,spirit);
+                    }
                 }else {
                     Log.error("重复的精灵ID:{} {} {}",id,curSpirit.toString(),spirit.toString());
                 }

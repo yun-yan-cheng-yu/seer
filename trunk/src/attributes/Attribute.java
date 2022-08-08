@@ -1,40 +1,53 @@
 package attributes;
 
-public enum Attribute {
-    NULL("无") ,
-    GRASS("草") ,
-    WATER("水") ,
-    FIRE("火"),
-    THUNDER("电"),
-    DRAGON("龙"),
-    LIGHT("光"),
-    ICE("冰"),
-    LAND("地面"),
-    FLY("飞行"),
-    DARK("暗影"),
-    SUPER("超能"),
-    FIGHT("战斗"),
-    MYSTIC("神秘"),
-    HALLOW("圣灵"),
-    MECHANICAL("机械"),
-    NORMAL("普通"),
-    EVIL("邪灵"),
-    NATURE("自然"),
-    KING("王"),
-    CHAOS("混沌"),
-    DIMENSION("次元"),
-    ROTATE("轮回"),
-    INSECT("虫"),
-    VOID("虚空"),
-    ANCIENT("远古"),
-    GOD("神灵"),
+import log.Log;
 
-    ;
+import java.util.HashSet;
+import java.util.Set;
 
+public class Attribute {
+    private final String fileName ;
+    private final EAttribute selfAttribute;//自己的属性
+    private final Set<EAttribute> strong;//克制的属性
+    private final Set<EAttribute> week;//微弱的属性
+    private final Set<EAttribute>  invalid;//无效的属性
 
-    private String comment;
+    Attribute(String fileName,EAttribute self,Set<EAttribute> strong,Set<EAttribute> week,Set<EAttribute> invalid){
+        this.fileName = fileName;
+        this.selfAttribute = self;
+        this.strong = strong;
+        this.week = week;
+        this.invalid = invalid;
+    }
 
-    Attribute(String comment){
-        this.comment = comment;
+    public boolean checkData() {
+        Set<EAttribute> temp = new HashSet<>(strong);
+        for (EAttribute eAttribute : week) {
+            if(temp.contains(eAttribute)){
+                Log.error("出现重复的属性{}",eAttribute);
+                return false;
+            }else{
+                temp.add(eAttribute);
+            }
+        }
+        for (EAttribute eAttribute : invalid) {
+            if(temp.contains(eAttribute)){
+                Log.error("出现重复的属性{}",eAttribute);
+                return false;
+            }else{
+                temp.add(eAttribute);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "文件名:"+fileName+"\t"
+                +"属性:"+this.selfAttribute+"\t"
+                +"克制:"+this.strong+"\t"
+                +"虚弱:"+this.week+"\t"
+                +"无效:"+this.invalid+"\t"
+                ;
     }
 }
